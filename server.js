@@ -11,6 +11,32 @@ db.once('open', function() {
   console.log("Database is connected!!!");
 });
 
+var schema = mongoose.Schema;
+var videoSchema = new schema({
+  id : Number,
+  title : String,
+  description : String,
+  iframe : String,
+  thumbnail : String
+});
+
+var video = db.model('Video',videoSchema);
+
+var newVideo = video({
+
+  title: "Children of Bodom - Bed of Razors guitar cover",
+  description: "Cover version of the song",
+  iframe: '<div class="container"><iframe class="video" src="https://www.youtube.com/embed/S_SjP_IzpQc" frameborder="0" allowfullscreen></iframe></div>',
+  thumbnail: "https://i.ytimg.com/vi/S_SjP_IzpQc/hqdefault.jpg?sqp=-oaymwEWCMQBEG5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLA6xGOk0Bh20ZxEvm0y5LhkWjBwtw",
+
+});
+
+// newVideo.save(function(err){
+//   if (err) throw err;
+//
+//   console.log('Video created!');
+// });
+
 app.all('/*', function(req,res,next){
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With", "Content-Type, Accept");
@@ -77,8 +103,16 @@ app.post('/comments', function (req, res) {
 });
 
 app.get('/videos', function(req, res){
-  console.log("Get from server");
-  res.send(tutorial);
+
+  video.find({}, function(err, videos){
+    if (err) throw err;
+
+    console.log(videos);
+    res.send(videos);
+    console.log("Get from server");
+
+  });
+
 });
 
 app.listen(6361);
