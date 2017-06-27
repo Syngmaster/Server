@@ -12,13 +12,22 @@ db.once('open', function() {
 });
 
 var schema = mongoose.Schema;
+
+var commentSchema = new schema ({
+  username: String,
+  comment: String
+});
+
 var videoSchema = new schema({
   id : Number,
   title : String,
   description : String,
   iframe : String,
-  thumbnail : String
+  thumbnail : String,
+  comment: [commentSchema]
 });
+
+
 
 var videoDBModel = db.model('Video',videoSchema);
 
@@ -31,6 +40,11 @@ var videoDBModel = db.model('Video',videoSchema);
 //   iframe: '<div class="container"><iframe class="video" src="https://www.youtube.com/embed/S_SjP_IzpQc" frameborder="0" allowfullscreen></iframe></div>',
 //   thumbnail: "https://i.ytimg.com/vi/S_SjP_IzpQc/hqdefault.jpg?sqp=-oaymwEWCMQBEG5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLA6xGOk0Bh20ZxEvm0y5LhkWjBwtw",
 //
+// });
+//
+// newVideo1.comment.push({
+//   username: 'Max',
+//   comment: 'Hello world!!'
 // });
 //
 // var newVideo2 = videoDBModel({
@@ -97,11 +111,27 @@ var comments = [
   }
 ];
 
-app.post('/comments', function (req, res) {
+/*app.post('/comments', function (req, res) {
   var comment = req.body;
   if (comment) {
     if (comment.username && comment.comment) {
       comments.push(comment);
+    } else {
+      res.send("You posted invalid data");
+    }
+  } else {
+    res.send("Post has no body");
+  }
+  console.log(comments);
+  res.send("Posted successfully");
+
+});*/
+
+app.post('/videos', function (req, res) {
+  var comment = req.body;
+  if (comment) {
+    if (comment.username && comment.comment) {
+      video.comment.push(comment);
     } else {
       res.send("You posted invalid data");
     }
@@ -117,12 +147,31 @@ app.get('/videos', function(req, res){
 
   videoDBModel.find({}, function(err, videos){
     if (err) throw err;
-
-    console.log(videos);
+    //console.log(videos);
     res.send(videos);
-    console.log("Get from server");
-
+    //console.log("Get from server");
   });
+
+});
+
+app.get('/videos/:id', function(req, res){
+
+  if(req.params.id) {
+    videoDBModel.find({id: req.params.id}, function(err, videos){
+      if (err) throw err;
+      if (videos != 0) {
+        res.send(videos);
+      } else {
+        res.send('No data!');
+      }
+    })
+  }
+  console.log("!!!!!!!", req.params.id);
+});
+
+app.get('/comments', function(req, res){
+
+  res.send(comments);
 
 });
 
