@@ -19,7 +19,7 @@ var commentSchema = new schema ({
 });
 
 var videoSchema = new schema({
-  id : Number,
+  id : { type : Number, unique : true},
   title : String,
   description : String,
   iframe : String,
@@ -27,14 +27,12 @@ var videoSchema = new schema({
   comment: [commentSchema]
 });
 
-
-
 var videoDBModel = db.model('Video',videoSchema);
 
 // add a new object into db
 // var newVideo1 = videoDBModel({
 //
-//   id: 1,
+//   id: 5,
 //   title: "Children of Bodom - Bed of Razors guitar cover",
 //   description: "Cover version of the song",
 //   iframe: '<div class="container"><iframe class="video" src="https://www.youtube.com/embed/S_SjP_IzpQc" frameborder="0" allowfullscreen></iframe></div>',
@@ -42,10 +40,6 @@ var videoDBModel = db.model('Video',videoSchema);
 //
 // });
 //
-// newVideo1.comment.push({
-//   username: 'Max',
-//   comment: 'Hello world!!'
-// });
 //
 // var newVideo2 = videoDBModel({
 //
@@ -77,8 +71,15 @@ var videoDBModel = db.model('Video',videoSchema);
 //
 // });
 
-// save new object
+// push a new comment
+// for (var i = 0; i < 3; i++) {
+//   newVideo1.comment.push({
+//     username: 'Max',
+//     comment: 'Hello world!!'
+//   });
+// }
 
+// save new object
 // newVideo1.save(function(err){
 //   if (err) throw err;
 //
@@ -98,7 +99,6 @@ app.all('/*', function(req,res,next){
   res.header("Access-Control-Allow-Headers", "X-Requested-With", "Content-Type, Accept");
   res.header("Access-Control-Allow-Methods", "POST", "GET", "DELETE");
   next();
-
 });
 
 app.use(bodyParser.json());
@@ -143,7 +143,7 @@ app.post('/videos', function (req, res) {
 
 });
 
-app.get('/videos', function(req, res){
+app.get('/method/video.getAll', function(req, res){
 
   videoDBModel.find({}, function(err, videos){
     if (err) throw err;
@@ -154,25 +154,20 @@ app.get('/videos', function(req, res){
 
 });
 
-app.get('/videos/:id', function(req, res){
+app.get('/method/video.getComments=:id', function(req, res){
 
   if(req.params.id) {
-    videoDBModel.find({id: req.params.id}, function(err, videos){
+    videoDBModel.find({id: req.params.id}, function(err, video){
       if (err) throw err;
-      if (videos != 0) {
-        res.send(videos);
-      } else {
-        res.send('No data!');
+      var videoObj = video[0];
+      if (videoObj) {
+        res.send(videoObj.comment);
+        console.log("!!!!!!!", videoObj.comment);
       }
-    })
+    });
+  } else {
+    res.send(400, {error: 'bad url', url: req.url});
   }
-  console.log("!!!!!!!", req.params.id);
-});
-
-app.get('/comments', function(req, res){
-
-  res.send(comments);
-
 });
 
 app.listen(6361);
