@@ -127,7 +127,21 @@ var comments = [
 
 });*/
 
-app.post('/video.postComment:id', function (req, res) {
+//delete comment
+app.get('/method/video.deleteComment=:id&:username', function(req, res){
+
+  console.log(req.params.username);
+  videoDBModel.findOne({id: req.params.id}, function(err, video){
+    if (err) throw err;
+    if (video) {
+      res.send(video.comment);
+      console.log("!!!!!!!", video.comment);
+    }
+  });
+
+});
+
+app.post('/video.postComment=:id', function (req, res) {
   var comment = req.body;
 
   if (comment) {
@@ -141,7 +155,7 @@ app.post('/video.postComment:id', function (req, res) {
           videoObj.save(function(err){
             if (err) throw err;
           });
-          console.log("!!!!!!!", videoObj);
+          console.log("Updated video object", videoObj);
         }
       });
     } else {
@@ -167,14 +181,13 @@ app.get('/method/video.getAll', function(req, res){
 });
 
 app.get('/method/video.getComments=:id', function(req, res){
-
+console.log(req.params.id);
   if(req.params.id) {
-    videoDBModel.find({id: req.params.id}, function(err, video){
+    videoDBModel.findOne({id: req.params.id}, function(err, video){
       if (err) throw err;
-      var videoObj = video[0];
-      if (videoObj) {
-        res.send(videoObj.comment);
-        console.log("!!!!!!!", videoObj.comment);
+      if (video) {
+        res.send(video.comment);
+        console.log("!!!!!!!", video.comment);
       }
     });
   } else {
