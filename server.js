@@ -127,11 +127,23 @@ var comments = [
 
 });*/
 
-app.post('/videos', function (req, res) {
+app.post('/video.postComment:id', function (req, res) {
   var comment = req.body;
+
   if (comment) {
     if (comment.username && comment.comment) {
-      video.comment.push(comment);
+      videoDBModel.find({id: req.params.id}, function(err, video){
+        if (err) throw err;
+        var videoObj = video[0];
+        console.log(videoObj);
+        if (videoObj) {
+          videoObj.comment.push(comment);
+          videoObj.save(function(err){
+            if (err) throw err;
+          });
+          console.log("!!!!!!!", videoObj);
+        }
+      });
     } else {
       res.send("You posted invalid data");
     }
