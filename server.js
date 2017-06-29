@@ -111,37 +111,7 @@ var comments = [
   }
 ];
 
-/*app.post('/comments', function (req, res) {
-  var comment = req.body;
-  if (comment) {
-    if (comment.username && comment.comment) {
-      comments.push(comment);
-    } else {
-      res.send("You posted invalid data");
-    }
-  } else {
-    res.send("Post has no body");
-  }
-  console.log(comments);
-  res.send("Posted successfully");
-
-});*/
-
-//delete comment
-app.get('/method/video.deleteComment=:id&:username', function(req, res){
-
-  console.log(req.params.username);
-  videoDBModel.findOne({id: req.params.id}, function(err, video){
-    if (err) throw err;
-    if (video) {
-      res.send(video.comment);
-      console.log("!!!!!!!", video.comment);
-    }
-  });
-
-});
-
-app.post('/video.postComment=:id', function (req, res) {
+app.post('/method/video.postComment=:id', function (req, res) {
   var comment = req.body;
 
   if (comment) {
@@ -193,6 +163,24 @@ console.log(req.params.id);
   } else {
     res.send(400, {error: 'bad url', url: req.url});
   }
+});
+
+//delete comment
+//!!! look up for the correct Express method!!
+
+app.get('/method/video.deleteComment=:videoID&:commentID', function(req, res){
+
+  videoDBModel.update({ id: req.params.videoID }, { "$pull": { "comment": { "_id": req.params.commentID } }}, { safe: true, multi:true }, function(err, obj) {
+    console.log(obj);
+  });
+  videoDBModel.findOne({id: req.params.id}, function(err, video){
+    if (err) throw err;
+    if (video) {
+      console.log("Comments of video",video.comment);
+    }
+
+  });
+
 });
 
 app.listen(6361);
